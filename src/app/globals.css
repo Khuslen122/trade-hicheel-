@@ -5,6 +5,8 @@
   --foreground: #ffffff;
   --blood: #870000;
   --blood-hover: #a00000;
+  /* Жижиг текстэнд — blood-оос арай тод, хар дэвсгэр дээр уншигдахуйц */
+  --ember: #d61f1f;
 }
 
 @theme inline {
@@ -12,12 +14,15 @@
   --color-foreground: var(--foreground);
   --color-blood: var(--blood);
   --color-blood-hover: var(--blood-hover);
+  --color-ember: var(--ember);
   --font-sans: var(--font-inter);
   --font-mono: var(--font-jetbrains);
-}
 
-html {
-  scroll-behavior: smooth;
+  --animate-fade-up: fade-up 0.8s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  --animate-pop: pop 0.35s cubic-bezier(0.3, 1.6, 0.5, 1) both;
+  --animate-float: float 16s ease-in-out infinite;
+  --animate-marquee: marquee 45s linear infinite;
+  --animate-dash: dash 0.8s linear infinite;
 }
 
 body {
@@ -30,10 +35,205 @@ body {
   color: #fff;
 }
 
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
 /* Арын нарийн тор */
 .grid-bg {
   background-image:
     linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
     linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
   background-size: 48px 48px;
+}
+
+.marquee {
+  mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+}
+
+.marquee:hover .animate-marquee {
+  animation-play-state: paused;
+}
+
+/* ---------- Keyframes ---------- */
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes pop {
+  0% {
+    transform: scale(0.85);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(40px, 30px) scale(1.1);
+  }
+}
+
+@keyframes marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* Тасархай шугамыг сумны чиглэлд "урсгана" */
+@keyframes dash {
+  to {
+    stroke-dashoffset: -10;
+  }
+}
+
+@keyframes reveal {
+  from {
+    opacity: 0;
+    transform: translateY(40px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes grow-x {
+  to {
+    transform: scaleX(1);
+  }
+}
+
+/* ---------- Scroll-д холбогдсон animation ----------
+   Дэмждэггүй хөтөч дээр контент хөдөлгөөнгүй, шууд харагдана. */
+
+.read-progress {
+  transform-origin: 0 50%;
+  transform: scaleX(0);
+}
+
+@supports (animation-timeline: scroll()) {
+  .read-progress {
+    animation: grow-x linear both;
+    animation-timeline: scroll(root);
+  }
+}
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .reveal {
+      animation: reveal cubic-bezier(0.2, 0.7, 0.2, 1) both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 80%;
+    }
+
+    /* Диаграмын шугам scroll хийх үед зурагдана */
+    .chart {
+      view-timeline-name: --chart;
+    }
+
+    .chart .draw {
+      stroke-dasharray: 1;
+      stroke-dashoffset: 1;
+      animation: draw ease-out both;
+      animation-timeline: --chart;
+      animation-range: entry 10% cover 45%;
+    }
+
+    .chart .late {
+      animation: fade-in ease-out both;
+      animation-timeline: --chart;
+      animation-range: cover 30% cover 45%;
+    }
+
+    .chart .early {
+      animation: fade-in ease-out both;
+      animation-timeline: --chart;
+      animation-range: entry 0% entry 100%;
+    }
+  }
+}
+
+/* ---------- Хуудас хоорондын шилжилт (React <ViewTransition>) ---------- */
+
+::view-transition {
+  pointer-events: none;
+}
+
+::view-transition-group(site-header) {
+  animation: none;
+  z-index: 100;
+}
+
+::view-transition-old(site-header) {
+  display: none;
+}
+
+::view-transition-new(site-header) {
+  animation: none;
+}
+
+::view-transition-old(.page) {
+  animation: 160ms ease-in both vt-out;
+}
+
+::view-transition-new(.page) {
+  animation: 320ms cubic-bezier(0.2, 0.7, 0.2, 1) 120ms both vt-in;
+}
+
+@keyframes vt-out {
+  to {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes vt-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [class*="animate-"] {
+    animation: none !important;
+  }
+
+  ::view-transition-old(*),
+  ::view-transition-new(*),
+  ::view-transition-group(*) {
+    animation-duration: 0s !important;
+    animation-delay: 0s !important;
+  }
 }
