@@ -37,7 +37,7 @@ export const steps: Step[] = [
   },
   {
     id: "zone",
-    question: "Zone /FVG, Fibo, OB/",
+    question: "Zone (FVG, Fibo, OB) тодорхой юу?",
     title: "Zone тодорхойлох",
     summary:
       "Үнэ буцаж ирээд хариу үйлдэл үзүүлэх магадлал өндөр бүсийг урьдчилан тэмдэглэнэ. Олон хэрэгсэл нэг газар давхцах (confluence) тусам zone хүчтэй.",
@@ -61,7 +61,7 @@ export const steps: Step[] = [
   },
   {
     id: "confirm",
-    question: "Баталгаа өгсөн үү?",
+    question: "Үнэ zone дээр баталгаа өгсөн үү?",
     title: "Баталгаа (Confirmation)",
     summary:
       "Үнэ zone-д хүрсэн нь шууд орох дохио биш. Zone дээр үнэ эргэх шинж тэмдэг үзүүлж, баталгаа өгөхийг хүлээнэ.",
