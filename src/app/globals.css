@@ -167,19 +167,19 @@ body {
       stroke-dashoffset: 1;
       animation: draw ease-out both;
       animation-timeline: --chart;
-      animation-range: entry 10% cover 45%;
+      animation-range: entry 0% entry 90%;
     }
 
     .chart .late {
       animation: fade-in ease-out both;
       animation-timeline: --chart;
-      animation-range: cover 30% cover 45%;
+      animation-range: entry 70% entry 100%;
     }
 
     .chart .early {
       animation: fade-in ease-out both;
       animation-timeline: --chart;
-      animation-range: entry 0% entry 100%;
+      animation-range: entry 0% entry 60%;
     }
   }
 }

@@ -220,8 +220,8 @@ export default function Home() {
                       Эхний <span className="text-blood">хичээлээс</span> эхэл
                     </h2>
                     <p className="mt-3 text-neutral-400 max-w-xl">
-                      Форекс зах зээл, MetaTrader платформ, Buy / Sell, Spread, Lot, Pip — үндсэн ойлголтуудыг алхам
-                      алхмаар үзээрэй.
+                      Валютын хос, Buy / Sell, Spread, Pip, Lot, Leverage — үндсэн ойлголтуудыг энгийн жишээгээр
+                      алхам алхмаар үзээрэй.
                     </p>
                   </div>
                   <span className="shrink-0 inline-flex items-center gap-2 self-start md:self-auto px-6 py-3 bg-blood group-hover:bg-blood-hover text-white text-sm font-bold rounded-xl transition-colors">
