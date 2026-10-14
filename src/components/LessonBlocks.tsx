@@ -1,6 +1,8 @@
 import Image from "next/image";
 import { Fragment } from "react";
 import type { Block, Rich } from "@/data/lessons";
+import { MiniChart } from "./MiniCharts";
+import { PriceBox } from "./PriceBox";
 
 // 3 элементтэй бол 3 багана — 2 баганад хоосон саарал нүд үлдэхээс сэргийлнэ
 const gridCols = (n: number) => (n === 3 ? "md:grid-cols-3" : "sm:grid-cols-2");
@@ -19,48 +21,6 @@ function RichText({ text }: { text: Rich }) {
         ),
       )}
     </>
-  );
-}
-
-// MetaTrader-ийн Sell/Buy хайрцгийг дуурайлгасан жишээ
-function PriceBox() {
-  return (
-    <div className="grid lg:grid-cols-[auto_1fr] gap-6 items-center border border-neutral-900 bg-black grid-bg p-6">
-      <div className="w-full max-w-xs border border-neutral-800 bg-[#0a0a0a] font-mono">
-        <div className="px-3 py-2 text-[11px] text-neutral-400 border-b border-neutral-800">
-          EURUSD, M30 · 1 Lot = 100,000 EUR
-        </div>
-        <div className="grid grid-cols-2 gap-px bg-neutral-800">
-          <div className="bg-blood p-3">
-            <div className="text-[10px] font-bold tracking-widest">SELL</div>
-            <div className="mt-1 text-sm">
-              1.09<span className="text-3xl font-extrabold">35</span>
-              <sup>6</sup>
-            </div>
-          </div>
-          <div className="bg-blood p-3">
-            <div className="text-[10px] font-bold tracking-widest text-right">BUY</div>
-            <div className="mt-1 text-sm text-right">
-              1.09<span className="text-3xl font-extrabold">38</span>
-              <sup>4</sup>
-            </div>
-          </div>
-        </div>
-      </div>
-      <dl className="grid sm:grid-cols-3 gap-px bg-neutral-900 border border-neutral-900 font-mono text-sm">
-        {[
-          ["Sell (Bid)", "1.09356", "Зарах үнэ"],
-          ["Buy (Ask)", "1.09384", "Авах үнэ"],
-          ["Spread", "2.8 pip", "1.09384 − 1.09356"],
-        ].map(([k, v, note]) => (
-          <div key={k} className="bg-black p-4">
-            <dt className="text-[10px] uppercase tracking-widest text-neutral-500">{k}</dt>
-            <dd className="mt-1 text-lg font-extrabold">{v}</dd>
-            <dd className="text-[11px] text-neutral-500">{note}</dd>
-          </div>
-        ))}
-      </dl>
-    </div>
   );
 }
 
@@ -116,6 +76,13 @@ export function LessonBlock({ block }: { block: Block }) {
               <p className="mt-4 text-sm text-neutral-400 leading-relaxed">
                 <RichText text={item.text} />
               </p>
+              {item.chart && (
+                <div className="mt-5 border border-neutral-900 bg-[#050505] grid-bg px-3 py-4">
+                  <div className="mx-auto max-w-64">
+                    <MiniChart name={item.chart} title={item.term} />
+                  </div>
+                </div>
+              )}
             </div>
           ))}
         </div>
@@ -270,6 +237,73 @@ export function LessonBlock({ block }: { block: Block }) {
         </div>
       );
 
+    case "pair":
+      // EUR / USD = 1.1900 — хос бүрийн хэсгийг доор нь тайлбарлана
+      return (
+        <figure className="max-w-3xl border border-neutral-900 bg-black grid-bg px-3 py-6 sm:p-6 md:p-10">
+          <div className="flex items-start justify-center gap-2 sm:gap-3 md:gap-5 font-mono font-extrabold">
+            <div className="text-center">
+              <div className="text-[1.7rem] sm:text-4xl md:text-6xl text-white">{block.base}</div>
+              <div className="mt-2 text-[10px] uppercase tracking-widest text-green-500">Base</div>
+            </div>
+            <div className="text-[1.7rem] sm:text-4xl md:text-6xl text-neutral-700">/</div>
+            <div className="text-center">
+              <div className="text-[1.7rem] sm:text-4xl md:text-6xl text-white">{block.quote}</div>
+              <div className="mt-2 text-[10px] uppercase tracking-widest text-ember">Quote</div>
+            </div>
+            <div className="text-[1.7rem] sm:text-4xl md:text-6xl text-neutral-700">=</div>
+            <div className="text-center">
+              <div className="text-[1.7rem] sm:text-4xl md:text-6xl text-blood">{block.price}</div>
+              <div className="mt-2 text-[10px] uppercase tracking-widest text-neutral-500">Ханш</div>
+            </div>
+          </div>
+          {block.caption && (
+            <figcaption className="mt-6 text-center text-sm text-neutral-400">
+              <RichText text={block.caption} />
+            </figcaption>
+          )}
+        </figure>
+      );
+
+    case "datatable":
+      return (
+        <figure className="max-w-3xl">
+          <div className="overflow-x-auto border border-neutral-900">
+            <table className="w-full border-collapse font-mono text-xs sm:text-sm">
+              <thead>
+                <tr>
+                  {block.head.map((h, i) => (
+                    <th
+                      key={h}
+                      className={`border-b border-neutral-900 bg-[#0a0a0a] px-2.5 sm:px-4 py-3 text-[9px] sm:text-[10px] uppercase tracking-wider sm:tracking-widest ${
+                        i === 0 ? "text-left text-neutral-500" : "text-right text-ember"
+                      }`}
+                    >
+                      {h}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {block.rows.map((row) => (
+                  <tr key={row[0]} className="border-t border-neutral-900 hover:bg-[#0a0000] transition-colors">
+                    {row.map((cell, i) => (
+                      <td
+                        key={i}
+                        className={`px-2.5 sm:px-4 py-3 whitespace-nowrap ${i === 0 ? "text-left font-bold text-white" : "text-right text-neutral-300"}`}
+                      >
+                        <RichText text={cell} />
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          {block.caption && <figcaption className="mt-3 text-xs text-neutral-500">{block.caption}</figcaption>}
+        </figure>
+      );
+
     case "heading":
       return (
         <h3 className="flex items-center gap-3 pt-4 text-xl md:text-2xl font-bold">
@@ -328,25 +362,33 @@ export function LessonBlock({ block }: { block: Block }) {
       );
 
     case "logos":
+      // Аппын дүрсийг утсан дээр харагддаг шиг булангууд нь бөөрөнхий хэлбэрээр
       return (
-        <div className="grid sm:grid-cols-2 gap-6 max-w-3xl">
-          {block.items.map((item) => (
-            <figure key={item.src} className="group border border-neutral-900 transition-colors duration-300 hover:border-blood">
-              <div className="bg-white h-32 px-8 flex items-center justify-center overflow-hidden">
+        <div className="grid grid-cols-2 gap-4 md:gap-6 max-w-xl">
+          {block.items.map((item) => {
+            const [name, year] = item.label.split(" · ");
+            return (
+              <figure
+                key={item.src}
+                className="group flex flex-col items-center gap-4 border border-neutral-900 bg-[#050505] p-6 md:p-8 transition-colors duration-300 hover:border-blood"
+              >
                 <Image
                   src={item.src}
                   alt={item.alt}
                   width={item.width}
                   height={item.height}
-                  sizes="320px"
-                  className="max-h-16 w-auto transition-transform duration-500 group-hover:scale-105"
+                  sizes="96px"
+                  className="h-20 w-20 md:h-24 md:w-24 rounded-[22%] shadow-[0_10px_30px_-10px_rgba(0,120,255,0.5)] transition-transform duration-300 group-hover:-translate-y-1 group-hover:scale-105"
                 />
-              </div>
-              <figcaption className="bg-[#050505] px-4 py-3 font-mono text-[11px] uppercase tracking-widest text-neutral-400">
-                {item.label}
-              </figcaption>
-            </figure>
-          ))}
+                <figcaption className="text-center">
+                  <div className="font-bold">{name}</div>
+                  {year && (
+                    <div className="mt-1 font-mono text-[10px] uppercase tracking-widest text-neutral-500">{year} он</div>
+                  )}
+                </figcaption>
+              </figure>
+            );
+          })}
         </div>
       );
 
